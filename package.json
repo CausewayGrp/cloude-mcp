@@ -1,0 +1,27 @@
+{
+  "name": "@causeway/cloude-mcp",
+  "version": "0.1.0",
+  "description": "CauseWay HQ provisioner — declarative SharePoint list schema (CW-PROMPT-SP-001 v2.0) and an idempotent Microsoft Graph provisioner that builds it",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "causeway-provision": "bin/provision.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "docs"
+  ],
+  "scripts": {
+    "plan": "node bin/provision.js --dry-run",
+    "provision": "node bin/provision.js",
+    "validate": "node bin/provision.js --validate"
+  },
+  "keywords": [
+    "sharepoint",
+    "microsoft-graph",
+    "causeway",
+    "provisioning"
+  ],
+  "license": "MIT"
+}
