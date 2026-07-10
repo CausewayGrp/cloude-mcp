@@ -64,11 +64,29 @@ export class GraphClient {
     return r.value || [];
   }
 
-  async createList(siteId, displayName, description) {
+  async createList(siteId, displayName, description, template) {
     return this._graph("POST", `/sites/${siteId}/lists`, {
       displayName,
       description: description || "",
-      list: { template: "genericList" },
+      list: { template: template || "genericList" },
+    });
+  }
+
+  /** Resolve the drive behind a document library, for folder provisioning. */
+  async getListDrive(siteId, listId) {
+    const r = await this._graph("GET", `/sites/${siteId}/lists/${listId}/drive?$select=id`);
+    return r.id;
+  }
+
+  /** Create a folder at the root of a drive (idempotent by name). */
+  async ensureFolder(siteId, driveId, name) {
+    const children = await this._graph("GET", `/sites/${siteId}/drives/${driveId}/root/children?$select=id,name,folder`);
+    const existing = (children.value || []).find((c) => c.name === name && c.folder);
+    if (existing) return existing;
+    return this._graph("POST", `/sites/${siteId}/drives/${driveId}/root/children`, {
+      name,
+      folder: {},
+      "@microsoft.graph.conflictBehavior": "fail",
     });
   }
 
@@ -125,5 +143,62 @@ export class GraphClient {
       }
     }
     return { title };
+  }
+
+  // ---- SharePoint REST helpers (permissions live outside Graph's surface) ----
+
+  async _spFetch(webUrl, path, body) {
+    const host = new URL(webUrl).host;
+    const token = await this.spToken(host);
+    const res = await fetch(`${webUrl}/_api${path}`, {
+      method: body === undefined ? "GET" : "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json;odata=verbose",
+        Accept: "application/json;odata=verbose",
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`SP ${path} failed (${res.status}): ${await res.text()}`);
+    const text = await res.text();
+    return text ? JSON.parse(text) : {};
+  }
+
+  /**
+   * Ensure a SharePoint site group exists (permission follows position, never
+   * person — groups are positions; membership is managed by the tenant admin).
+   */
+  async ensureSiteGroup(webUrl, groupName) {
+    try {
+      const r = await this._spFetch(webUrl, `/web/sitegroups/getbyname('${encodeURIComponent(groupName)}')`);
+      return r.d;
+    } catch {
+      const r = await this._spFetch(webUrl, `/web/sitegroups`, {
+        __metadata: { type: "SP.Group" },
+        Title: groupName,
+      });
+      return r.d;
+    }
+  }
+
+  /** Grant a role (e.g. "Full Control", "Contribute", "Read") to a group on the web. */
+  async grantWebRole(webUrl, groupId, roleName) {
+    const role = await this._spFetch(webUrl, `/web/roledefinitions/getbyname('${encodeURIComponent(roleName)}')`);
+    const roleId = role.d.Id;
+    await this._spFetch(webUrl, `/web/roleassignments/addroleassignment(principalid=${groupId},roledefid=${roleId})`, {});
+    return { groupId, roleName };
+  }
+
+  /**
+   * Seal a list: break inheritance (dropping inherited assignments) and grant
+   * only the named groups. Used for 2-person lists like EPR-09 Incidents.
+   */
+  async sealList(webUrl, listId, grants) {
+    await this._spFetch(webUrl, `/web/lists(guid'${listId}')/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)`, {});
+    for (const { groupId, roleName } of grants) {
+      const role = await this._spFetch(webUrl, `/web/roledefinitions/getbyname('${encodeURIComponent(roleName)}')`);
+      await this._spFetch(webUrl, `/web/lists(guid'${listId}')/roleassignments/addroleassignment(principalid=${groupId},roledefid=${role.d.Id})`, {});
+    }
+    return { sealed: true, listId };
   }
 }

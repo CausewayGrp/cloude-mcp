@@ -1,60 +1,54 @@
-# Pending — what this package does NOT yet build, and why
+# Pending — what stays manual or deferred, and why
 
-This layer provisions the **list data model** for §5–§9 (11 lists, 90 columns,
-15 views, 12 reference seed rows) — the part that is fully specified in
-CW-PROMPT-SP-001 v2.0 itself and needs no external file. The items below are
-deliberately deferred, each for a concrete reason.
+The provisioner automates the estate's data layer end-to-end: zone libraries
+and interiors, domain libraries with metadata, every list with exact columns,
+named views, reference seeds, position groups with base grants, sealed lists,
+and the house theme. The rest, honestly:
 
-## 1. Waiting on the document bundle (workbook + HTML + build spec)
+## 1. Tenant-admin steps (not portably automatable)
 
-The build prompt says: *do not invent business content — extract it.* These need
-the firm's own files, which are being shared as a zip / drive link:
+- **Site creation & hub association** — creating communication sites and
+  registering/associating the CauseWay-OS hub uses the SPO admin surface, not
+  portable Graph. Create the hub + seven sites once, then feed their IDs to the
+  provisioner (`CW_SITE_ID`, `CW_SITE_TECH`, `CW_SITE_FINOPS`, `CW_SITE_LINE1`,
+  `CW_SITE_LINE2`, `CW_SITE_PARTNER`, `CW_SITE_CONTENT`, `CW_SITE_PEOPLE`).
+- **Home pages & dashboards** (build steps 5 and 8) — purpose text, quick
+  links, the domain dashboard web parts pinned to home.
+- **Doc-set content types** — libraries marked `docSet: true` (Programme
+  Workspaces, Tier Law Dossiers, CBDDQ Workroom, Expert Profiles, Staff Files,
+  Franchise Pipeline) provision as document libraries; enabling the Document
+  Set content type is a site-collection feature toggle.
+- **Group membership** — the provisioner creates position groups; the admin
+  puts people in them (permission follows position; persons change, positions
+  don't).
+- **Client-seat RLS** — "Read (their workspace only) / own dossier" is
+  per-item/folder security by institution, applied per engagement.
+- **Purview sensitivity labels** — D0–D3 tiers are recorded on every list and
+  zone; label GUIDs are tenant-specific.
+- **AuditLog immutability** — the provisioner creates the list; the admin
+  restricts the flow service account to Add-only (no Edit/Delete role) so the
+  append-only guarantee holds at the platform level.
+- **Per-domain header accents** — page-level styling on each domain's headers;
+  the base theme is applied automatically.
 
-- **v1.0 lists' full column sets** — Live Pipeline, Service Architecture,
-  Regulatory Radar, Stakeholder Dossier, Sira Commitments, Risk Register, KPI
-  Tracker, Positions & Roster, Lifecycle Instances. This package *references*
-  four of them via lookups but does not define their columns.
-- **Positions & Roster augmentation** — §7.1 asks for `Trigger Condition` +
-  `Trigger Status` on every *position* record (this package adds them to
-  Recruitment Pipeline, per §7.2; the Positions & Roster change belongs with the
-  v1.0 list definition).
-- **Performance Scorecard band thresholds** — §7.4 says reproduce the firm's own
-  Excel averaging/banding. The Overall Rating formula here uses faithful default
-  cut-points for the 1–4 scale; the exact thresholds come from the workbook.
-- **Exact salary bands** — the Grades list carries the six grades and the pay
-  principles verbatim; the USD-equivalent band figures live in the salary-scale
-  workbook.
-- **Chart of Accounts full five-digit codes** — this package seeds the six
-  classes (the structure §8.1 gives); the full account list is the firm's real CoA.
+## 2. Power Automate (specified, not created)
 
-## 2. Not reachable via Microsoft Graph (needs Power Automate / admin)
+Every flow in `docs/FLOWS.md`: 21 domain flows (3 × 7 workbooks), the reusable
+request flow and its twelve WF-TEC clones, the screening gate, the v2 alarm
+layer (`docs/ALARMS.md`). Flow names = eProcess codes, always.
 
-Per the session decision ("attempt Graph, document the true gaps"):
+## 3. Deferred by the firm's own sequencing
 
-- **The §9 alarm layer** — seven flows. Specified in `docs/ALARMS.md`.
-- **Content Calendar outbound posting** (§6.2) — LinkedIn/X connector flows,
-  plus the Review-Gates stage-gate that blocks Status → Approved.
-- **Intelligence Feed ingestion** (§5) — RSS triggers, the `intelligence@`
-  mailbox parser, and the scheduled diff-polls (CBY-Aden daily → auto-draft
-  Decree is the highest-value one).
-- **Weekly Check-in reminders** (§7.3) — Monday/Friday Teams-card prompts.
-- **Dynamic cross-list values** (§4 mechanism 2/3) — e.g. Engagement
-  Profitability's Direct Costs = Σ Class-5 Expense Claims; monthly/quarterly KPI
-  rollups. The *calculated* same-item fields (§4 mechanism 1) ARE provisioned
-  here (Gross Margin, Margin %, Overall Rating).
+- **The Z08 finale** — People & Culture is a SHELL by design; the rating
+  system is built last, when every JD and KPI combines. The v2 HR spine
+  (Grades, Recruitment Pipeline, Weekly Check-in, Performance Scorecard) is
+  schema-complete and unlocks with `--include-finale` when the MD calls it.
+- **Placeholder values** — columns the workbooks mark `[PH]`/`[PLACEHOLDER]`
+  (budget amounts, estimates) are seeded later by their owners.
+- **The 48-vs-49 workflow drift** — deliberately left open per the estate
+  reference, to settle in the compendium.
 
-## 3. Tenant configuration (portable Graph can't set these)
+## 4. Explicitly parked (v2.0 §13, unchanged)
 
-- **Purview sensitivity labels** — each list here records its D1–D4 tier
-  (see `src/sensitivity.js`); applying the actual Purview label requires the
-  tenant's label GUIDs and is an admin step. D1: Recruitment Pipeline,
-  Performance Scorecard, Engagement Profitability, Cash Position. Content
-  Calendar flips D2→D3 on publish.
-- **Per-role landing pages & audience targeting** (§11).
-- **Site/spoke creation & hub association** (§2) — this package assumes the hub
-  and the twelve spokes exist and provisions lists into them by `spoke` name.
-
-## 4. Explicitly parked by the spec (§13 Phase 9+)
-
-Social sentiment/mentions monitoring; AI Builder document classification beyond
-Purview auto-labeling; Power BI analytics beyond the basic dashboard pages.
+Social sentiment/mentions monitoring; AI Builder classification beyond Purview
+auto-labeling; Power BI beyond the basic dashboard pages.

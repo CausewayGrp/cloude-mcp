@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CauseWay-OS · The Estate</title>
+<style>
+  /* The House system — one paper, one green, one seal (docs/BRANDING.md) */
+  :root{
+    --cw-green:#0A4A3A; --cw-green-up:#0C5C46;
+    --cw-paper:#ECEEE4; --cw-paper-2:#E3E7DD;
+    --cw-foil:#C9A24B;  --cw-gold-deep:#B08641;
+    --cw-ink:#13251D;   --cw-alert:#B00020;
+    --serif:'Fraunces',Georgia,'Times New Roman',serif;
+    --sans:'Archivo',system-ui,-apple-system,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--cw-paper);color:var(--cw-ink);font-family:var(--sans);line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+  header{background:var(--cw-green);color:var(--cw-paper);padding:64px 0 56px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;right:-80px;top:-80px;width:340px;height:340px;border-radius:50%;
+    border:1.5px solid var(--cw-foil);opacity:.35}
+  header::before{content:"";position:absolute;right:-40px;top:-40px;width:260px;height:260px;border-radius:50%;
+    border:1px solid var(--cw-foil);opacity:.25}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--cw-foil);text-transform:uppercase}
+  h1{font-family:var(--serif);font-weight:600;font-size:52px;letter-spacing:-.01em;margin:14px 0 8px}
+  .tagline{font-size:18px;opacity:.92}
+  .tagline .ar{font-size:17px;opacity:.85;margin-inline-start:14px}
+  .meta{margin-top:26px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;opacity:.75}
+
+  .rule{height:3px;background:linear-gradient(90deg,var(--cw-foil),transparent 70%)}
+
+  section{padding:48px 0 8px}
+  h2{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--cw-green);margin-bottom:6px}
+  .lede{color:var(--cw-ink);opacity:.75;max-width:640px;margin-bottom:26px;font-size:15px}
+
+  .grid{display:grid;gap:14px}
+  .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:840px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+
+  .card{background:#fff;border:1px solid var(--cw-paper-2);border-top:3px solid var(--cw-green);
+    padding:18px 18px 16px;border-radius:2px}
+  .card .code{font-family:var(--mono);font-size:11px;color:var(--cw-gold-deep);letter-spacing:.1em}
+  .card h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:4px 0 6px;color:var(--cw-green)}
+  .card p{font-size:13px;opacity:.75}
+  .card .tag{display:inline-block;margin-top:10px;font-size:11px;font-family:var(--mono);
+    color:var(--cw-green);background:var(--cw-paper);padding:2px 8px;border-radius:2px}
+  .d1{border-top-color:var(--cw-gold-deep)}
+  .d1 .lock{color:var(--cw-gold-deep);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--cw-paper-2);font-size:13.5px}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-align:left;
+    color:var(--cw-paper);background:var(--cw-green);padding:10px 14px;font-weight:500}
+  td{padding:10px 14px;border-top:1px solid var(--cw-paper-2);vertical-align:top}
+  td.mono{font-family:var(--mono);font-size:12px;color:var(--cw-green);white-space:nowrap}
+  tr:nth-child(even) td{background:var(--cw-paper)}
+
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:26px 0 6px}
+  @media(max-width:840px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--cw-green);color:var(--cw-paper);padding:18px 16px;border-radius:2px;
+    border-bottom:3px solid var(--cw-foil)}
+  .stat b{display:block;font-family:var(--serif);font-size:34px;font-weight:600;line-height:1.1}
+  .stat span{font-size:12px;opacity:.85}
+
+  .law{background:#fff;border-inline-start:3px solid var(--cw-foil);padding:14px 18px;margin-bottom:12px;font-size:14px}
+  .law b{font-family:var(--serif);color:var(--cw-green)}
+
+  .chip{display:inline-block;font-family:var(--mono);font-size:11.5px;background:#fff;
+    border:1px solid var(--cw-paper-2);color:var(--cw-green);padding:4px 10px;margin:3px 4px 3px 0;border-radius:2px}
+  .chip.gate{border-color:var(--cw-gold-deep);color:var(--cw-gold-deep)}
+
+  footer{margin-top:56px;background:var(--cw-green);color:var(--cw-paper);padding:34px 0;font-size:13px}
+  footer .foil{color:var(--cw-foil)}
+  footer .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:baseline}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">CauseWay · Aden · CR 26666 · D2 Internal</div>
+    <h1>CauseWay-OS — the estate.</h1>
+    <div class="tagline">From intent to delivery.<span class="ar">من النية إلى التنفيذ</span></div>
+    <div class="meta">One hub · seven domain sites · sixteen zones · one vocabulary · one green, one paper, one seal</div>
+  </div>
+</header>
+<div class="rule"></div>
+
+<div class="wrap">
+
+  <section>
+    <div class="stat-row">
+      <div class="stat"><b>16</b><span>zones on the hub, five-folder interior</span></div>
+      <div class="stat"><b>7</b><span>domain sites, workbook build order</span></div>
+      <div class="stat"><b>30</b><span>libraries with metadata columns</span></div>
+      <div class="stat"><b>40</b><span>lists — the databases the dashboards read</span></div>
+      <div class="stat"><b>33</b><span>flows specified, named for their eProcess</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The seven domains</h2>
+    <p class="lede">One complete build workbook per domain — site, libraries, lists with exact columns
+    and views, permissions by position, flows. Built in this order.</p>
+    <div class="grid g4">
+      <div class="card"><span class="code">CW-SPB-TECH · 1st</span><h3>Technology</h3><p>Website source of truth, backend masters, credentials &amp; incident registers, the deploy pipeline.</p><span class="tag">Clarity in complexity</span></div>
+      <div class="card"><span class="code">CW-SPB-FINOPS · 2nd</span><h3>Finance &amp; Operations</h3><p>The Vault and the Bridge: eProcess lists, approvals, settlements, the SLA board.</p><span class="tag">The number you sign is the number you pay</span></div>
+      <div class="card"><span class="code">CW-SPB-LINE1 · 3rd</span><h3>Line I — State &amp; Development</h3><p>Programme workspaces, readiness registers, sector feed, the climate pipeline.</p><span class="tag">Counsel at the level of the state</span></div>
+      <div class="card"><span class="code">CW-SPB-LINE2 · 3rd</span><h3>Line II — Banking &amp; Regulation</h3><p>Tier dossiers, the sanctions terrain, daily screening v-stamp, the clinic.</p><span class="tag">Where regulation, risk, and reality meet</span></div>
+      <div class="card"><span class="code">CW-SPB-PARTNER · 3rd</span><h3>Partnerships &amp; Expert Network</h3><p>The bench by code: vetting, signed documents, coverage map, four-gate QA.</p><span class="tag">The bench behind the bridge</span></div>
+      <div class="card"><span class="code">CW-SPB-CONTENT · 4th</span><h3>Content &amp; Social Media</h3><p>The post library, the papers (EN + native AR), franchises, the content calendar.</p><span class="tag">From intent to delivery</span></div>
+      <div class="card"><span class="code">CW-SPB-PEOPLE · last</span><h3>People &amp; Culture</h3><p>SHELL by design — completed at the Z08 finale where every JD and KPI combines.</p><span class="tag">Building the practitioners</span></div>
+      <div class="card d1"><span class="code">HUB</span><h3>CauseWay-OS</h3><p>The operating system of the firm: the sixteen zones, the screening gate, the intelligence feed, the alarm log.</p><span class="tag">Positions, not persons</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The sixteen zones</h2>
+    <p class="lede">Each a document library with the same five-folder interior. Permission follows
+    position, never person. Zones 12 and 13 are D1 — MD/COO only.</p>
+    <div class="grid g4">
+      <div class="card"><span class="code">00 · Foundation</span><h3>Canon &amp; Operating System</h3></div>
+      <div class="card"><span class="code">01 · Foundation</span><h3>Strategy &amp; Core</h3></div>
+      <div class="card"><span class="code">02 · Foundation</span><h3>Intelligence &amp; Evidence</h3></div>
+      <div class="card"><span class="code">03 · Offer</span><h3>The Business Lines</h3></div>
+      <div class="card"><span class="code">04 · Offer</span><h3>Commercial Architecture</h3></div>
+      <div class="card"><span class="code">05 · Offer</span><h3>Profile &amp; Identity</h3></div>
+      <div class="card"><span class="code">06 · Presence</span><h3>Voice &amp; Content</h3></div>
+      <div class="card"><span class="code">07 · Presence</span><h3>Public Launch &amp; Social</h3></div>
+      <div class="card"><span class="code">08 · Presence</span><h3>Technology &amp; Digital</h3></div>
+      <div class="card"><span class="code">09 · Presence</span><h3>The Aden Convening</h3></div>
+      <div class="card"><span class="code">10 · Operate</span><h3>People &amp; Culture</h3></div>
+      <div class="card"><span class="code">11 · Operate</span><h3>Firm Operations</h3></div>
+      <div class="card d1"><span class="code">12 · Operate</span><h3>Finance &amp; Administration</h3><span class="lock">D1 · MD/COO ONLY</span></div>
+      <div class="card d1"><span class="code">13 · Operate</span><h3>Governance, Risk &amp; Compliance</h3><span class="lock">D1 · MD/COO ONLY</span></div>
+      <div class="card"><span class="code">14 · Operate</span><h3>Registrations &amp; Partnerships</h3></div>
+      <div class="card"><span class="code">15 · Operate</span><h3>Quality &amp; Review</h3></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>One vocabulary</h2>
+    <p class="lede">Everything is coded so it automates — a code is what a machine can route on.
+    A SharePoint list reads these directly as choice columns and permission rules.</p>
+    <div style="margin-bottom:18px">
+      <span class="chip">WF-TEC-01…12</span><span class="chip">FRM-01…12</span>
+      <span class="chip">P1 · P2 · P3 · P4</span>
+      <span class="chip">OPEN → IN-PROGRESS → WAITING → RESOLVED → CLOSED · REJECTED</span>
+      <span class="chip">D0 · D1 · D2 · D3 · REQ</span>
+      <span class="chip">L1 · L2 · L3 · H · EN</span>
+      <span class="chip">T1 Assessment · T2 Sprint · T3 Programme · T4 Retainer</span>
+      <span class="chip">CT-BANK … CT-DONOR</span>
+      <span class="chip">ENG-YYYY-nnn</span>
+      <span class="chip">LEAD</span><span class="chip gate">SCREEN — gate</span><span class="chip">SCOPE</span>
+      <span class="chip gate">ESCROW — gate</span><span class="chip">DELIVER</span><span class="chip">REVIEW</span><span class="chip">CLOSE</span>
+      <span class="chip">SCR-CLEAR · SCR-REVIEW · SCR-DECLINE</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>The laws the estate obeys</h2>
+    <div class="law"><b>Permission follows position, never person.</b> What you can open is decided by the role you hold, not your name (POL-GOV-03).</div>
+    <div class="law"><b>A form is a data contract, not a document.</b> Every field typed, required flags set, RBAC read strictly — a D0 field is never seen operationally.</div>
+    <div class="law"><b>Nothing advances silently.</b> Every step updates the row, appends to the immutable AuditLog, and notifies the next holder.</div>
+    <div class="law"><b>The screening gate sits before the sale.</b> SCR-DECLINE is terminal and synchronous, routed to the MD on every channel. A decline costs a conversation, not a commitment.</div>
+    <div class="law"><b>English primary; Arabic native.</b> AR content is native-separate, never machine-mixed in one surface (POL-LANG-01).</div>
+    <div class="law"><b>The rating system is built last.</b> People &amp; Culture completes at the Z08 finale, where every JD and KPI combines.</div>
+  </section>
+
+  <section>
+    <h2>The reusable workflow — form → list → flow → dashboard</h2>
+    <p class="lede">One flow, instantiated per process. Reference build: onboarding (WF-HR-01).</p>
+    <table>
+      <tr><th>Stage</th><th>Holder (position)</th><th>SLA</th><th>What happens</th></tr>
+      <tr><td class="mono">Submit</td><td>Line manager</td><td>t = 0</td><td>One row to Requests_People with a generated RequestRef; SLA set from start date; audit row; Teams + email to approver.</td></tr>
+      <tr><td class="mono">With supervisor</td><td>Supervisor</td><td>1 day</td><td>Approve or return — a return needs a written reason; the clock resets.</td></tr>
+      <tr><td class="mono">HR</td><td>HR Lead</td><td>1 day</td><td>Validate offer, set induction cohort, assign the buddy.</td></tr>
+      <tr><td class="mono">Technology</td><td>Technology</td><td>2 days</td><td>Position group, zone grants (12 &amp; 13 never grantable), licence, device to standard.</td></tr>
+      <tr><td class="mono">Close</td><td>Manager</td><td>—</td><td>Status → Closed; the full trail fixed in the append-only AuditLog; joiner enters induction.</td></tr>
+    </table>
+  </section>
+
+  <footer style="margin-inline:-28px;padding-inline:28px">
+    <div class="wrap row">
+      <div><span class="foil">CauseWay</span> for Financial, Banking &amp; Development Consultancies (Limited) · CR 26666<br>
+      Khormaksar · Aden · Republic of Yemen · causewaygrp.com</div>
+      <div style="text-align:right">Clarity in complexity. <span class="foil">Trust in turbulence.</span><br>
+      <span style="font-family:var(--mono);font-size:11px;opacity:.7">generated from src/schema — the page reads the code, the code reads the workbooks</span></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

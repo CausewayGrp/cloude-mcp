@@ -1,87 +1,106 @@
-# CauseWay HQ provisioner (`cloude-mcp`)
+# CauseWay-OS estate provisioner (`cloude-mcp`)
 
-Declarative SharePoint list schema for the CauseWay HQ Microsoft 365 build
-(**CW-PROMPT-SP-001 v2.0**, §5–§9) plus an idempotent Microsoft Graph
-provisioner that builds it.
+The CauseWay SharePoint estate as code: **one hub, seven domain sites, sixteen
+zones, the coding scheme, the workflow spine, and the house branding** — all
+extracted verbatim from the firm's own build workbooks and provisioned
+idempotently through Microsoft Graph + SharePoint REST.
 
-This is the CauseWay-specific layer. The generic SharePoint list/column/view/item
-tooling it relies on lives in the companion **[mcp-sharepoint](https://github.com/matrix712/mcp-sharepoint)**
-MCP server; this package uses its own thin Graph client so it can also run
-standalone.
+Companion repo: [mcp-sharepoint](https://github.com/matrix712/mcp-sharepoint)
+(the generic list/column/view/item MCP tooling). This package carries its own
+thin Graph client so it also runs standalone.
+
+## Sources (authority order)
+
+1. `CW-SPB-{TECH,FINOPS,LINE1,LINE2,PARTNER,CONTENT,PEOPLE}` — the seven domain
+   build workbooks: site, libraries with metadata, lists with exact columns and
+   views, permissions by position, flows, build steps.
+2. `CW-SP-REF-001` — the estate reference: sixteen zones, the reusable request
+   pattern (form → list → flow → dashboard + append-only AuditLog).
+3. `CW-TEC-WFR-001` — workflows, forms & coding register: eight coding schemes,
+   twelve tech workflows, forms to field depth, the screening gate.
+4. `CW-PROMPT-SP-001 v2.0` — the additive layer, reconciled (`src/schema/v2.js`).
+5. **The House Stationery** branding upgrade — one paper, one green, one seal.
+
+The full absorbed map is in [`docs/ESTATE.md`](docs/ESTATE.md).
 
 ## What it provisions
 
-The 11 new v2.0 lists — every column, choice, grade, competency and account
-class taken **verbatim from the spec**, nothing invented:
+- **The hub (CauseWay-OS)** — 16 zone document libraries (zones 12 & 13 D1),
+  each with the five-folder interior; the firm-level lists: Screening Gate,
+  Intelligence Feed, Alarm Log.
+- **Seven domain sites, in the workbooks' build order** — 30 libraries with
+  metadata columns, 40 lists with exact columns and named views (44 at the
+  finale), position groups with base grants, the sealed 2-person EPR-09 list.
+- **The house theme** — "CauseWay House": malachite `#0A4A3A`, porcelain
+  `#ECEEE4`, gold-foil accent `#C9A24B`, registered at tenant level and applied
+  to every site ([`docs/BRANDING.md`](docs/BRANDING.md)).
+- **The automation layer, specified** — every flow named for its eProcess:
+  21 domain flows, the reusable request flow + 12 WF-TEC clones, the screening
+  gate, the alarm layer ([`docs/FLOWS.md`](docs/FLOWS.md), [`docs/ALARMS.md`](docs/ALARMS.md)).
 
-| List | Spoke | Tier |
-|---|---|---|
-| Intelligence Feed (§5) | Intelligence & Pipeline | D2 |
-| Content Calendar (§6) | Marketing & Communications | D2 → D3 on publish |
-| Grades (§7.1, seeded G1–G6) | People & Culture | D2 |
-| Recruitment Pipeline (§7.2) | People & Culture | D1 |
-| Weekly Check-in (§7.3) | People & Culture | D2 |
-| Performance Scorecard (§7.4) | People & Culture | D1 |
-| Chart of Accounts (§8.1, seeded 6 classes) | Finance & Engagement Economics | D2 |
-| Expense Claims (§8.2) | Finance & Engagement Economics | D2 |
-| Engagement Profitability (§8.3) | Finance & Engagement Economics | D1 |
-| Cash Position (§8.4) | Finance & Engagement Economics | D1 |
-| Alarm Log (§9) | Operations & Governance | D2 |
-
-**Totals:** 11 lists · 90 columns · 15 named views · 12 reference seed rows.
-
-Calculated columns (§4 mechanism 1 — Gross Margin, Margin %, Overall Rating) are
-provisioned directly. Cross-list and time-based values (§4 mechanisms 2/3) and
-the alarm/ingestion/posting flows need Power Automate — see
-[`docs/PENDING.md`](docs/PENDING.md) and [`docs/ALARMS.md`](docs/ALARMS.md).
+What stays manual (site creation, home pages, doc sets, Purview labels, group
+membership, flows) is itemized honestly in [`docs/PENDING.md`](docs/PENDING.md).
 
 ## Usage
 
 ```bash
-# Static schema checks — no tenant, no network:
-npm run validate
+npm run validate            # static schema checks — no tenant, no network
+npm run plan                # the full ordered estate plan — no tenant, no network
+node bin/provision.js --dry-run --include-finale   # preview incl. the Z08-finale HR spine
 
-# Preview the full ordered plan — no tenant, no network:
-npm run plan
-
-# Apply against a live site (idempotent — safe to re-run):
+# Apply (idempotent — safe to re-run any number of times):
 CW_AUTH_MODE=application \
-CW_TENANT_ID=...  CW_CLIENT_ID=...  CW_CLIENT_SECRET=...  \
-CW_SITE_ID=contoso.sharepoint.com,<siteCollGuid>,<webGuid> \
+CW_TENANT_ID=... CW_CLIENT_ID=... CW_CLIENT_SECRET=... \
+CW_SITE_ID=<hub site id> \
+CW_SITE_TECH=... CW_SITE_FINOPS=... CW_SITE_LINE1=... CW_SITE_LINE2=... \
+CW_SITE_PARTNER=... CW_SITE_CONTENT=... CW_SITE_PEOPLE=... \
+CW_SP_ADMIN_HOST=<tenant>-admin.sharepoint.com \
 npm run provision
 ```
 
-Delegated mode: set `CW_AUTH_MODE=delegated` and `CW_ACCESS_TOKEN` (Graph-scoped;
-note view creation additionally needs a SharePoint-scoped token — see the
-mcp-sharepoint README).
+Domains without a site ID are skipped with a warning — the estate builds in
+stages, matching the workbooks' own order: tech → finops → line1 → line2 →
+partner → content → people (last, at the finale).
 
-The provisioner:
-1. creates lists (skips any that already exist),
-2. adds simple columns, then lookup columns once their targets exist,
-3. creates the named views (via SharePoint REST),
-4. seeds reference data (Grades, Chart of Accounts) keyed idempotently.
+## The laws the code obeys
 
-Lookups to v1.0 lists (Regulatory Radar, Positions & Roster, Sanctions &
-Integrity Screen, Live Pipeline) are resolved by display name; if one is missing
-the provisioner **warns and continues** rather than failing.
+- **Permission follows position, never person** — groups are positions.
+- **Everything is coded so it automates** — the eight schemes and the
+  commercial coding are `src/schema/coding.js`, used as choice columns as-is.
+- **A form is a data contract** — `src/schema/workflows.js` carries the forms
+  register to field depth, RBAC read strictly.
+- **Nothing advances silently** — the request pattern appends to an immutable
+  AuditLog on every transition.
+- **People & Culture is a SHELL** — the rating system is built last; the HR
+  spine unlocks only with `--include-finale`.
+- **One green, one paper, one seal** — the theme is applied on every run;
+  legacy palettes never touch new surfaces.
 
 ## Layout
 
 ```
-src/columns.js       column builders → Microsoft Graph columnDefinition objects
-src/schema/index.js  the 11 list definitions (§5–§9) + external dependencies
-src/graph.js         minimal Graph + SharePoint REST client
-src/provision.js     validate / dry-run / idempotent apply
-src/config.js        env-based configuration
-bin/provision.js     CLI entrypoint
-docs/ALARMS.md       §9 alarm layer as flow specs (not Graph-buildable)
-docs/PENDING.md      everything deferred, and why
+src/branding/tokens.js     the house palette, identity constants, type, language law
+src/branding/theme.js      "CauseWay House" Fluent theme + tenant/site application
+src/schema/coding.js       the eight schemes + commercial coding (one vocabulary)
+src/schema/zones.js        the sixteen zones + the e-process board
+src/schema/workflows.js    WF-TEC-01..12, forms to field depth, request pattern, screening gate
+src/schema/domains/        one module per CW-SPB workbook (seven)
+src/schema/v2.js           CW-PROMPT-SP-001 v2.0 additions, reconciled (retired/deferred/routed)
+src/schema/index.js        the estate, composed
+src/graph.js               Graph + SharePoint REST client (lists, libraries, folders, views, groups, sealing)
+src/provision.js           validate / dry-run / idempotent apply
+bin/provision.js           CLI
+docs/ESTATE.md             the absorbed map + the laws + surfaced drifts
+docs/FLOWS.md              every flow, buildable spec
+docs/BRANDING.md           the branding enforcement law
+docs/ALARMS.md             the v2.0 alarm layer
+docs/PENDING.md            what stays manual, honestly
 ```
 
 ## Status
 
-The list data model is complete and its schema is validated and dry-run-proven.
-It has **not** been run against a live tenant from this environment (no
-credentials). Business content that must be extracted from the firm's workbook,
-and all Power Automate flows / Purview labels / per-role pages, are tracked in
-[`docs/PENDING.md`](docs/PENDING.md).
+Schema validated; the full estate plan dry-runs clean (1 hub + 7 sites · 16
+zones · 30 libraries · 40 lists · 15+ named views · 21 domain flows + 12
+register workflows). Not yet run against the live tenant from this
+environment (no credentials here) — the apply path guards on missing config
+and every operation is idempotent for staged rollout.

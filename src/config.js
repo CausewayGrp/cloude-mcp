@@ -3,15 +3,27 @@
 // plus SITE_ID are required; in delegated mode a Graph-scoped ACCESS_TOKEN plus
 // SITE_ID are required.
 
+import { BUILD_ORDER } from "./schema/domains/index.js";
+
 export function loadConfig() {
   const authMode = (process.env.CW_AUTH_MODE || "application").toLowerCase();
+  // One env var per domain site: CW_SITE_TECH, CW_SITE_FINOPS, CW_SITE_LINE1,
+  // CW_SITE_LINE2, CW_SITE_PARTNER, CW_SITE_CONTENT, CW_SITE_PEOPLE. A domain
+  // without a site id is skipped with a warning — the estate builds in stages.
+  const domainSites = {};
+  for (const key of BUILD_ORDER) {
+    const v = process.env[`CW_SITE_${key.toUpperCase()}`];
+    if (v) domainSites[key] = v;
+  }
   const cfg = {
     authMode,
     tenantId: process.env.CW_TENANT_ID,
     clientId: process.env.CW_CLIENT_ID,
     clientSecret: process.env.CW_CLIENT_SECRET,
     accessToken: process.env.CW_ACCESS_TOKEN,
-    siteId: process.env.CW_SITE_ID,
+    siteId: process.env.CW_SITE_ID,            // the CauseWay-OS hub
+    domainSites,
+    spAdminHost: process.env.CW_SP_ADMIN_HOST, // e.g. contoso-admin.sharepoint.com (tenant theme)
   };
   return cfg;
 }
